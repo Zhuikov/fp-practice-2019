@@ -33,11 +33,38 @@ list2dlist' left (h: t) =
 
 
 -- Реализуйте функции индексирования, вставки и удаления элементов
+
+lenDList list = helper list 0
+    where
+        helper DNil len = len
+        helper (DCons l x r) len = helper r $ len + 1
+
 index :: DList a -> Int -> a
-index = todo
+index DNil _ = error "Out of bounds"
+index (DCons left x right) i
+    | i == 0 = x
+    | otherwise = index right $ i - 1
 
 insertAt :: DList a -> Int -> a -> DList a
-insertAt list index value = todo
+insertAt list index value 
+    | index >= lenDList list || index < 0 = error "Out of bounds"
+    | otherwise = helper DNil list index value
+    where 
+        helper left DNil index value = 
+            if index == 0 then DCons left value DNil else error "Out of bounds"
+        helper left (DCons l x r) index value 
+            | index == 0 = let rec = DCons l value (DCons rec x r) in rec
+            | otherwise = let rec = DCons l x (helper rec r (index - 1) value) in rec
 
 removeAt :: DList a -> Int -> DList a
-removeAt list index = todo
+removeAt list index 
+    | index >= lenDList list || index < 0 = error "Out of bounds"
+    | otherwise = helper DNil list index
+    where
+        helper left (DCons left' x' right') i
+            | i == 0 = case right' of
+                DNil -> DNil
+                DCons l x r -> DCons left x r
+            | otherwise = let rec = DCons left' x' (helper rec right' $ i - 1) 
+                          in rec
+
